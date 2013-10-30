@@ -738,7 +738,7 @@ public class YTPLTracker
 				
 				ArrayList< String > newSubs  = new ArrayList< String > ( subNames );
 				newSubs.removeAll( prevSubNames );
-				out.println( "Removed" + "(" + newSubs.size() + "): " );
+				out.println( "New" + "(" + newSubs.size() + "): " );
 				for( String s : newSubs )
 				{
 					out.println( s );
