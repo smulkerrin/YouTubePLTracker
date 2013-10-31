@@ -335,12 +335,8 @@ public class YTPLTracker
 					+ userChannel + "\"." );
 			System.out.println();
 
-			// ///
-
-			// /NOTE 1: POSSIBLY KEEP TRACK OF VIDEO AUTHOR ALSO
-			// NOTE 2: Allow for proper tracking of videos with same title (use
-			// unique video id or playlist id or w/e)
-
+			//////////////////
+			
 			channelRequest = client.channels().list( "contentDetails" );
 			channelRequest.setMine( true );
 			channelResult = channelRequest.execute();
@@ -618,11 +614,21 @@ public class YTPLTracker
 				}
 				out.println();
 				
-				//All Playlists
+				//All Playlist Items
 				
 					//NOTE - TO DO:
 					//1. Make new and removed lists for each playlist appear together!
-					//2. Notify of new or removed PLAYLISTS!
+				
+					//Create set of previous and current playlist titles
+					HashSet< String > plNames = new HashSet< String >();
+					plNames.addAll( prevPLData.keySet() );
+					plNames.addAll( plData.keySet() );
+					
+					System.out.println( "Playlist Names: " );
+					for( String s : plNames )
+					{
+						System.out.println( s );
+					}
 				
 					//Print removed videos from all playlists
 					//Copy playlist data references to new hashmap
@@ -710,7 +716,7 @@ public class YTPLTracker
 						out.println();
 					}*/
 				
-				for( Map.Entry< String, ArrayList< VidEntry > > entry : prevPLData.entrySet() )
+				/*for( Map.Entry< String, ArrayList< VidEntry > > entry : prevPLData.entrySet() )
 				{
 					String plTitle = entry.getKey();
 					ArrayList< VidEntry > vidList = entry.getValue();
@@ -723,7 +729,7 @@ public class YTPLTracker
 					}
 
 					System.out.println();
-				}
+				}*/
 				
 				//Subs
 				out.println( "[Subscriptions]" );
@@ -740,6 +746,29 @@ public class YTPLTracker
 				newSubs.removeAll( prevSubNames );
 				out.println( "New" + "(" + newSubs.size() + "): " );
 				for( String s : newSubs )
+				{
+					out.println( s );
+				}
+				out.println();
+				
+				//Playlists
+				out.println( "[Playlists]" );
+							
+				HashSet< String > removedPLs  = new HashSet< String >( prevPLData.keySet() );
+				removedPLs.removeAll( plData.keySet() );
+
+				out.println( "Removed" + "(" + removedPLs.size() + "): " );
+				for( String s : removedPLs )
+				{
+					out.println( s );
+				}
+				out.println();
+				
+				HashSet< String > newPLs  = new HashSet< String >( plData.keySet() );
+				newPLs.removeAll( prevPLData.keySet() );
+
+				out.println( "New" + "(" + newPLs.size() + "): " );
+				for( String s : newPLs )
 				{
 					out.println( s );
 				}
