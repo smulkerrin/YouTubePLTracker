@@ -618,21 +618,18 @@ public class YTPLTracker
 				
 					//NOTE - TO DO:
 					//1. Make new and removed lists for each playlist appear together!
-				
-					//Create set of previous and current playlist titles
-					HashSet< String > plNames = new HashSet< String >();
-					plNames.addAll( prevPLData.keySet() );
-					plNames.addAll( plData.keySet() );
 					
-					System.out.println( "Playlist Names: " );
-					for( String s : plNames )
-					{
-						System.out.println( s );
-					}
-				
+					//Print differences between playlist items
+					//NOTE: Only prints differences for playlists existing during both program runs, removed and new playlist
+					//titles are listed separately later on, the contents of the removed ones can be viewed in the previous run
+					//.txt output passed into the program in order to reach this point in the first place.
+	
 					//Print removed videos from all playlists
 					//Copy playlist data references to new hashmap
-					HashMap< String, ArrayList< VidEntry > > removedPLVids = new HashMap< String, ArrayList< VidEntry > >( prevPLData );
+					HashMap< String, ArrayList< VidEntry > > removedPLVids = new HashMap< String, ArrayList< VidEntry > >( plData );
+					
+					//Limit to playlists existing at times of both runs
+					removedPLVids.keySet().retainAll( prevPLData.keySet() );
 					
 					for( Map.Entry< String, ArrayList< VidEntry > > entry : removedPLVids.entrySet() )
 					{
@@ -656,6 +653,9 @@ public class YTPLTracker
 					//Copy playlist data references to new hashmap
 					HashMap< String, ArrayList< VidEntry > > newPLVids = new HashMap< String, ArrayList< VidEntry > >( plData );
 				
+					//Limit to playlists existing at times of both runs
+					newPLVids.keySet().retainAll( prevPLData.keySet() );
+					
 					for( Map.Entry< String, ArrayList< VidEntry > > entry : newPLVids.entrySet() )
 					{
 						String plTitle = entry.getKey();
