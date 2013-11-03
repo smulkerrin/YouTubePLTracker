@@ -624,14 +624,13 @@ public class YTPLTracker
 					//titles are listed separately later on, the contents of the removed ones can be viewed in the previous run
 					//.txt output passed into the program in order to reach this point in the first place.
 	
-					//Print removed videos from all playlists
-					//Copy playlist data references to new hashmap
-					HashMap< String, ArrayList< VidEntry > > removedPLVids = new HashMap< String, ArrayList< VidEntry > >( plData );
+					//Print new and removed videos from all playlists
 					
-					//Limit to playlists existing at times of both runs
-					removedPLVids.keySet().retainAll( prevPLData.keySet() );
+					//Limit to playlists existing during both runs
+					/*HashMap< String, ArrayList< VidEntry > > plVids = new HashMap< String, ArrayList< VidEntry > >( plData );
+					plVids.keySet().retainAll( prevPLData.keySet() );
 					
-					for( Map.Entry< String, ArrayList< VidEntry > > entry : removedPLVids.entrySet() )
+					for( Map.Entry< String, ArrayList< VidEntry > > entry : plVids.entrySet() )
 					{
 						String plTitle = entry.getKey();
 						ArrayList< VidEntry > vidList = entry.getValue();
@@ -645,26 +644,12 @@ public class YTPLTracker
 						{
 							out.println( "[Channel:" + vE.getChannel() + "]" + vE.getTitle() );
 						}
-	
+						
 						out.println();
-					}
-					
-					//Print new videos in all playlists
-					//Copy playlist data references to new hashmap
-					HashMap< String, ArrayList< VidEntry > > newPLVids = new HashMap< String, ArrayList< VidEntry > >( plData );
-				
-					//Limit to playlists existing at times of both runs
-					newPLVids.keySet().retainAll( prevPLData.keySet() );
-					
-					for( Map.Entry< String, ArrayList< VidEntry > > entry : newPLVids.entrySet() )
-					{
-						String plTitle = entry.getKey();
-						ArrayList< VidEntry > vidList = entry.getValue();
-												
+						
+						vidList = entry.getValue();
 						vidList.removeAll( prevPLData.get( plTitle ) );
-	
-						out.println( "[Playlist]" + plTitle );
-	
+						
 						out.println( "New" + "(" + vidList.size() + "): " );
 						for( VidEntry vE : vidList )
 						{
@@ -672,7 +657,58 @@ public class YTPLTracker
 						}
 	
 						out.println();
-					}
+					}*/
+					
+						//Print removed videos from all playlists
+						//Copy playlist data references to new hashmap
+						HashMap< String, ArrayList< VidEntry > > removedPLVids = new HashMap< String, ArrayList< VidEntry > >( prevPLData );
+						
+						//Limit to playlists existing at times of both runs
+						removedPLVids.keySet().retainAll( plData.keySet() );
+						
+						for( Map.Entry< String, ArrayList< VidEntry > > entry : removedPLVids.entrySet() )
+						{
+							String plTitle = entry.getKey();
+							ArrayList< VidEntry > vidList = new ArrayList< VidEntry >( entry.getValue() );
+													
+							vidList.removeAll( plData.get( plTitle ) );
+		
+							out.println( "[Playlist]" + plTitle );
+		
+							out.println( "Removed" + "(" + vidList.size() + "): " );
+							for( VidEntry vE : vidList )
+							{
+								out.println( "[Channel:" + vE.getChannel() + "]" + vE.getTitle() );
+							}
+		
+							out.println();
+						}
+						
+						//Print new videos in all playlists
+						//Copy playlist data references to new hashmap
+						HashMap< String, ArrayList< VidEntry > > newPLVids = new HashMap< String, ArrayList< VidEntry > >( plData );
+					
+						//Limit to playlists existing at times of both runs
+						newPLVids.keySet().retainAll( prevPLData.keySet() );
+																		
+						for( Map.Entry< String, ArrayList< VidEntry > > entry : newPLVids.entrySet() )
+						{
+							String plTitle = entry.getKey();
+							ArrayList< VidEntry > vidList = new ArrayList< VidEntry >( entry.getValue() );
+															
+							vidList.removeAll( prevPLData.get( plTitle ) );
+		
+							out.println( "[Playlist]" + plTitle );
+		
+							out.println( "New" + "(" + vidList.size() + "): " );
+							for( VidEntry vE : vidList )
+							{
+								out.println( "[Channel:" + vE.getChannel() + "]" + vE.getTitle() );
+							}
+		
+							out.println();
+						}
+					
 				
 					/*HashMap< String, ArrayList< VidEntry > > removedPLVids = new HashMap< String, ArrayList< VidEntry > >( prevPLData );
 				
