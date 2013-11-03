@@ -524,11 +524,12 @@ public class YTPLTracker
 			//Channel data
 			out.println( "Data collected from channel "
 					+ userChannel + ":" );
-			out.println( "---" );
+			out.println( "=====" );
 			out.println();
 			
 			// Favorites
 			out.println( "[Favorites]" );
+			out.println( "(" + favData.size() + ")" );
 			for( VidEntry vE : favData )
 			{
 				out.println( "[Channel:" + vE.getChannel() + "]" + vE.getTitle() );
@@ -537,6 +538,7 @@ public class YTPLTracker
 
 			// Watch Later
 			out.println( "[Watch Later]" );
+			out.println( "(" + wlData.size() + ")" );
 			for( VidEntry vE : wlData )
 			{
 				out.println( "[Channel:" + vE.getChannel() + "]" + vE.getTitle() );
@@ -550,6 +552,7 @@ public class YTPLTracker
 				ArrayList< VidEntry > vidList = entry.getValue();
 
 				out.println( "[Playlist]" + plTitle );
+				out.println( "(" + vidList.size() + ")" );
 
 				for( VidEntry vE : vidList )
 				{
@@ -561,6 +564,7 @@ public class YTPLTracker
 
 			// Subscriptions
 			out.println( "[Subscriptions]" );
+			out.println( "(" + subNames.size() + ")" ); 
 			for( String s : subNames )
 			{
 				out.println( s );
@@ -616,15 +620,9 @@ public class YTPLTracker
 				{
 					out.println( "[Channel:" + vE.getChannel() + "]" + vE.getTitle() );
 				}
-				out.println();
-				out.println( "---" );
-				out.println();
-				
+
 				//All Playlist Items
 				
-					//NOTE - TO DO:
-					//1. Make new and removed lists for each playlist appear together!
-					
 					//Print differences between playlist items
 					//NOTE: Only prints differences for playlists existing during both program runs, removed and new playlist
 					//titles are listed separately later on, the contents of the removed ones can be viewed in the previous run
@@ -818,9 +816,6 @@ public class YTPLTracker
 				{
 					out.println( s );
 				}
-				out.println();
-				out.println( "---" );
-				out.println();
 			}
 			
 			// Close file
