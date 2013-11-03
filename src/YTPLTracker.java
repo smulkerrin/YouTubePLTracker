@@ -570,8 +570,10 @@ public class YTPLTracker
 			if( validInputFile )
 			{
 				out.println( "" );
+				out.println( "=====" );
 				out.println( "Differences detected from previous run " + args[0] + ":" );
-				out.println( "---" );
+				out.println( "=====" );
+				out.println();
 				
 				//Faves
 				out.println( "[Favorites]" );
@@ -591,6 +593,8 @@ public class YTPLTracker
 				{
 					out.println( "[Channel:" + vE.getChannel() + "]" + vE.getTitle() );
 				}
+				out.println();
+				out.println( "---" );
 				out.println();
 				
 				//Watch Later
@@ -613,6 +617,8 @@ public class YTPLTracker
 					out.println( "[Channel:" + vE.getChannel() + "]" + vE.getTitle() );
 				}
 				out.println();
+				out.println( "---" );
+				out.println();
 				
 				//All Playlist Items
 				
@@ -627,13 +633,13 @@ public class YTPLTracker
 					//Print new and removed videos from all playlists
 					
 					//Limit to playlists existing during both runs
-					/*HashMap< String, ArrayList< VidEntry > > plVids = new HashMap< String, ArrayList< VidEntry > >( plData );
+					HashMap< String, ArrayList< VidEntry > > plVids = new HashMap< String, ArrayList< VidEntry > >( plData );
 					plVids.keySet().retainAll( prevPLData.keySet() );
 					
 					for( Map.Entry< String, ArrayList< VidEntry > > entry : plVids.entrySet() )
 					{
 						String plTitle = entry.getKey();
-						ArrayList< VidEntry > vidList = entry.getValue();
+						ArrayList< VidEntry > vidList = new ArrayList< VidEntry >( entry.getValue() );
 												
 						vidList.removeAll( plData.get( plTitle ) );
 	
@@ -647,7 +653,7 @@ public class YTPLTracker
 						
 						out.println();
 						
-						vidList = entry.getValue();
+						vidList = new ArrayList< VidEntry >( entry.getValue() );
 						vidList.removeAll( prevPLData.get( plTitle ) );
 						
 						out.println( "New" + "(" + vidList.size() + "): " );
@@ -655,10 +661,12 @@ public class YTPLTracker
 						{
 							out.println( "[Channel:" + vE.getChannel() + "]" + vE.getTitle() );
 						}
-	
 						out.println();
-					}*/
+						out.println( "---" );
+						out.println();
+					}
 					
+					/*
 						//Print removed videos from all playlists
 						//Copy playlist data references to new hashmap
 						HashMap< String, ArrayList< VidEntry > > removedPLVids = new HashMap< String, ArrayList< VidEntry > >( prevPLData );
@@ -708,7 +716,7 @@ public class YTPLTracker
 		
 							out.println();
 						}
-					
+					*/
 				
 					/*HashMap< String, ArrayList< VidEntry > > removedPLVids = new HashMap< String, ArrayList< VidEntry > >( prevPLData );
 				
@@ -786,6 +794,8 @@ public class YTPLTracker
 					out.println( s );
 				}
 				out.println();
+				out.println( "---" );
+				out.println();
 				
 				//Playlists
 				out.println( "[Playlists]" );
@@ -808,6 +818,9 @@ public class YTPLTracker
 				{
 					out.println( s );
 				}
+				out.println();
+				out.println( "---" );
+				out.println();
 			}
 			
 			// Close file
