@@ -566,10 +566,29 @@ public class YTPLTracker
 			subRequest.setMine( true );
 			subRequest.setMaxResults( Long.valueOf( 20 ) );
 			
-			SubscriptionListResponse subResult = subRequest.execute();
+			SubscriptionListResponse subResult;// = subRequest.execute();
 
-			List< Subscription > subList = subResult.getItems();
+			ArrayList< Subscription > subList = new ArrayList< Subscription >();//subResult.getItems();
 
+			String nextToken = "";
+			
+			do
+			{
+				subRequest.setPageToken( nextToken );
+				subResult = subRequest.execute();
+				
+				subList.addAll( subResult.getItems() );
+				
+				nextToken = subResult.getNextPageToken();
+				
+				////HOW TO RETRIEVE RESULTS AFTER INITIAL 50!!!!
+				//plItemsRequest.setPageToken( plItemsResult.getNextPageToken() );
+				//plItemsResult = plItemsRequest.execute();
+				//plItemsList = plItemsResult.getItems();
+				///
+			}
+			while( nextToken != null );
+			
 			System.out.println( "Found " + subList.size()
 					+ ( subList.size() == 1 ? " subscription" : " subscriptions" ) + ":" );
 			for( Subscription s : subList )
