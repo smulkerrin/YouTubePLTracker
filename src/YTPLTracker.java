@@ -354,7 +354,7 @@ public class YTPLTracker
 			YouTube.Playlists.List playListRequest = client.playlists().list( "snippet" );
 			playListRequest.setMine( true );
 
-			playListRequest.setMaxResults( Long.valueOf( 50 ) );
+			playListRequest.setMaxResults( Long.valueOf( 20 ) );
 			
 			PlaylistListResponse playlistResult = playListRequest.execute();
 
@@ -400,15 +400,36 @@ public class YTPLTracker
 
 			YouTube.PlaylistItems.List plItemsRequest = client.playlistItems().list( "snippet" );
 			
-			plItemsRequest.setMaxResults( Long.valueOf( 50 ) );
+			plItemsRequest.setMaxResults( Long.valueOf( 20 ) );
 			
 			// Store Favourites Info
 			{
 				plItemsRequest.setPlaylistId( favesID );
-				PlaylistItemListResponse plItemsResult = plItemsRequest.execute();
+				plItemsRequest.setMaxResults( Long.valueOf( 20 ) );
+				
+				PlaylistItemListResponse plItemsResult;// = plItemsRequest.execute();
 								
-				List< PlaylistItem > plItemsList = plItemsResult.getItems();
+				ArrayList< PlaylistItem > plItemsList = new ArrayList< PlaylistItem >();//plItemsResult.getItems();
 
+				String nextToken = "";
+				
+				do
+				{
+					plItemsRequest.setPageToken( nextToken );
+					plItemsResult = plItemsRequest.execute();
+					
+					plItemsList.addAll( plItemsResult.getItems() );
+					
+					nextToken = plItemsResult.getNextPageToken();
+					
+					////HOW TO RETRIEVE RESULTS AFTER INITIAL 50!!!!
+					//plItemsRequest.setPageToken( plItemsResult.getNextPageToken() );
+					//plItemsResult = plItemsRequest.execute();
+					//plItemsList = plItemsResult.getItems();
+					///
+				}
+				while( nextToken != null );
+				
 				for( PlaylistItem plI : plItemsList )
 				{
 					// Get video title
@@ -419,6 +440,8 @@ public class YTPLTracker
 					YouTube.Videos.List vidRequest = client.videos().list( "snippet" );
 					vidRequest.setId( vId );
 
+					vidRequest.setMaxResults( Long.valueOf( 20 ) );
+					
 					VideoListResponse vidResult = vidRequest.execute();
 
 					List< Video > vidList = vidResult.getItems();
@@ -434,19 +457,40 @@ public class YTPLTracker
 			// Store Watch Later Info
 			{
 				plItemsRequest.setPlaylistId( wLaterID );
-				PlaylistItemListResponse plItemsResult = plItemsRequest.execute();
+				plItemsRequest.setMaxResults( Long.valueOf( 20 ) );
 
-				List< PlaylistItem > plItemsList = plItemsResult.getItems();
-
+				PlaylistItemListResponse plItemsResult;// = plItemsRequest.execute();
+				ArrayList< PlaylistItem > plItemsList = new ArrayList< PlaylistItem >();//plItemsResult.getItems();
+				
+				String nextToken = "";
+				
+				do
+				{
+					plItemsRequest.setPageToken( nextToken );
+					plItemsResult = plItemsRequest.execute();
+					
+					plItemsList.addAll( plItemsResult.getItems() );
+					
+					nextToken = plItemsResult.getNextPageToken();
+					
+					////HOW TO RETRIEVE RESULTS AFTER INITIAL 50!!!!
+					//plItemsRequest.setPageToken( plItemsResult.getNextPageToken() );
+					//plItemsResult = plItemsRequest.execute();
+					//plItemsList = plItemsResult.getItems();
+					///
+				}
+				while( nextToken != null );
+				
 				for( PlaylistItem plI : plItemsList )
 				{
-					// Get video title
+					//Get video title
 					String vTitle = plI.getSnippet().getTitle();
 
-					// Get video channel
+					//Get video channel
 					String vId = plI.getSnippet().getResourceId().getVideoId();
 					YouTube.Videos.List vidRequest = client.videos().list( "snippet" );
 					vidRequest.setId( vId );
+					vidRequest.setMaxResults( Long.valueOf( 20 ) );
 
 					VideoListResponse vidResult = vidRequest.execute();
 
@@ -454,23 +498,44 @@ public class YTPLTracker
 
 					String vChannel = vidList.get( 0 ).getSnippet().getChannelTitle();
 
-					// Store video data in playlist video list
+					//Store video data in playlist video list
 					wlData.add( new VidEntry( vTitle, vChannel ) );
 				}
 			}
 			// //////////////////////////////////////////////
-
+		
+			//YouTube.PlaylistItems.List plItemsRequest2 = client.playlistItems().list( "snippet" );
+			
 			// Store Playlists Info
 			for( Playlist pl : playlistsList )
 			{
 				plItemsRequest.setPlaylistId( pl.getId() );
-				PlaylistItemListResponse plItemsResult = plItemsRequest.execute();
-
-				List< PlaylistItem > plItemsList = plItemsResult.getItems();
+				plItemsRequest.setMaxResults( Long.valueOf( 20 ) );
+				PlaylistItemListResponse plItemsResult;// = plItemsRequest.execute();
+				ArrayList< PlaylistItem > plItemsList = new ArrayList< PlaylistItem >();//plItemsResult.getItems();
 
 				// Create ArrayList to store video data
 				ArrayList< VidEntry > plVids = new ArrayList< VidEntry >();
-
+				
+				String nextToken = "";
+				
+				do
+				{
+					plItemsRequest.setPageToken( nextToken );
+					plItemsResult = plItemsRequest.execute();
+					
+					plItemsList.addAll( plItemsResult.getItems() );
+					
+					nextToken = plItemsResult.getNextPageToken();
+					
+					////HOW TO RETRIEVE RESULTS AFTER INITIAL 50!!!!
+					//plItemsRequest.setPageToken( plItemsResult.getNextPageToken() );
+					//plItemsResult = plItemsRequest.execute();
+					//plItemsList = plItemsResult.getItems();
+					///
+				}
+				while( nextToken != null );
+				
 				for( PlaylistItem plI : plItemsList )
 				{
 					// Get video title
@@ -480,7 +545,8 @@ public class YTPLTracker
 					String vId = plI.getSnippet().getResourceId().getVideoId();
 					YouTube.Videos.List vidRequest = client.videos().list( "snippet" );
 					vidRequest.setId( vId );
-
+					vidRequest.setMaxResults( Long.valueOf( 20 ) );
+					
 					VideoListResponse vidResult = vidRequest.execute();
 
 					List< Video > vidList = vidResult.getItems();
@@ -498,7 +564,8 @@ public class YTPLTracker
 			// //Store Subscription info
 			YouTube.Subscriptions.List subRequest = client.subscriptions().list( "snippet" );
 			subRequest.setMine( true );
-
+			subRequest.setMaxResults( Long.valueOf( 20 ) );
+			
 			SubscriptionListResponse subResult = subRequest.execute();
 
 			List< Subscription > subList = subResult.getItems();
@@ -620,6 +687,10 @@ public class YTPLTracker
 				{
 					out.println( "[Channel:" + vE.getChannel() + "]" + vE.getTitle() );
 				}
+				
+				out.println();
+				out.println( "---" );
+				out.println();
 
 				//All Playlist Items
 				
@@ -839,7 +910,7 @@ public class YTPLTracker
 
 			YouTube.PlaylistItems.List plItemsRequest = client.playlistItems().list( "snippet" );
 
-			plItemsRequest.setMaxResults( Long.valueOf( 50 ) );
+			plItemsRequest.setMaxResults( Long.valueOf( 20 ) );
 			
 			plItemsRequest.setPlaylistId( plID );
 			PlaylistItemListResponse plItemsResult = plItemsRequest.execute();
@@ -856,6 +927,7 @@ public class YTPLTracker
 				// Print video uploader
 				YouTube.Videos.List vidRequest = client.videos().list( "snippet" );
 				vidRequest.setId( vId );
+				vidRequest.setMaxResults( Long.valueOf( 20 ) );
 
 				VideoListResponse vidResult = vidRequest.execute();
 
