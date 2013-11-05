@@ -127,8 +127,8 @@ public class YTPLTracker
 			client = new YouTube.Builder( httpTransport, JSON_FACTORY, credential )
 					.setApplicationName( APPLICATION_NAME ).build();
 
-			//////////////////////////////////////////////////////////////////////
-			
+			// ////////////////////////////////////////////////////////////////////
+
 			// Containers to store retrieved/loaded data
 			ArrayList< VidEntry > favData = new ArrayList< VidEntry >();
 			ArrayList< VidEntry > prevFavData = new ArrayList< VidEntry >();
@@ -141,184 +141,165 @@ public class YTPLTracker
 
 			HashMap< String, ArrayList< VidEntry > > plData = new HashMap< String, ArrayList< VidEntry > >();
 			HashMap< String, ArrayList< VidEntry > > prevPLData = new HashMap< String, ArrayList< VidEntry > >();
-			
-			//If user specifies a txt file from an older run of the program as a console argument...
+
+			// If user specifies a txt file from an older run of the program as
+			// a console argument...
 			boolean validInputFile = false;
 			if( args.length > 0 )
 			{
 				try
 				{
-					//Load specified file
+					// Load specified file
 					BufferedReader in = new BufferedReader( new FileReader( args[0] ) );
-		
-					//Read in data and populate containers
+
+					// Read in data and populate containers
 					String line = in.readLine();
-					
-					//Find favorites section
+
+					// Find favorites section
 					while( in.ready() )
 					{
 						if( line.equals( "[Favorites]" ) )
 						{
+							//Skip list length
+							in.readLine();
 							while( in.ready() )
 							{
 								line = in.readLine();
-								
-								//If reached the end of favorites list, stop
+
+								// If reached the end of favorites list, stop
 								if( line.isEmpty() )
 								{
 									break;
 								}
-								
-								//Otherwise...
-								String channel =  line.substring( line.indexOf( "Channel:" ) + "Channel:".length(), line.indexOf( ']' ) );
+
+								// Otherwise...
+								String channel = line.substring( line.indexOf( "Channel:" )
+										+ "Channel:".length(), line.indexOf( ']' ) );
 								String video = line.substring( line.indexOf( ']' ) + 1 );
-								
+
 								prevFavData.add( new VidEntry( video, channel ) );
 							}
-								
+
 							break;
 						}
-						
+
 						line = in.readLine();
 					}
-					
-					//Find watch later section
+
+					// Find watch later section
 					while( in.ready() )
 					{
 						if( line.equals( "[Watch Later]" ) )
 						{
+							//Skip list length
+							in.readLine();
 							while( in.ready() )
 							{
 								line = in.readLine();
-								
-								//If reached the end of watch later list, stop
+
+								// If reached the end of watch later list, stop
 								if( line.isEmpty() )
 								{
 									break;
 								}
-								
-								//Otherwise...
-								String channel =  line.substring( line.indexOf( "Channel:" ) + "Channel:".length(), line.indexOf( ']' ) );
+
+								// Otherwise...
+								String channel = line.substring( line.indexOf( "Channel:" )
+										+ "Channel:".length(), line.indexOf( ']' ) );
 								String video = line.substring( line.indexOf( ']' ) + 1 );
-								
+
 								prevWLData.add( new VidEntry( video, channel ) );
 							}
-								
+
 							break;
 						}
-						
+
 						line = in.readLine();
 					}
-					
-					//Find playlist sections
+
+					// Find playlist sections
 					while( in.ready() )
 					{
 						if( line.contains( "[Playlist]" ) )
 						{
-							//Store playlist title
+							// Store playlist title
 							String plTitle = line.substring( line.indexOf( ']' ) + 1 );
-							
-							//Create list of video entries for playlist
+
+							// Create list of video entries for playlist
 							ArrayList< VidEntry > plVidList = new ArrayList< VidEntry >();
+
+							//Skip list length
+							in.readLine();
 							
 							while( in.ready() )
 							{
 								line = in.readLine();
-								
-								//If reached the end of playlist, stop
+
+								// If reached the end of playlist, stop
 								if( line.isEmpty() )
 								{
 									break;
 								}
-								
-								//Otherwise...
-								String channel =  line.substring( line.indexOf( "Channel:" ) + "Channel:".length(), line.indexOf( ']' ) );
+
+								// Otherwise...
+								String channel = line.substring( line.indexOf( "Channel:" )
+										+ "Channel:".length(), line.indexOf( ']' ) );
 								String video = line.substring( line.indexOf( ']' ) + 1 );
-								
+
 								plVidList.add( new VidEntry( video, channel ) );
 							}
-							
+
 							prevPLData.put( plTitle, plVidList );
 						}
 						else if( line.startsWith( "[" ) )
 						{
 							break;
 						}
-						
+
 						line = in.readLine();
 					}
-					
-					//Find subscriptions section
+
+					// Find subscriptions section
 					while( in.ready() )
-					{			
+					{
 						if( line.equals( "[Subscriptions]" ) )
 						{
+							//Skip list length
+							in.readLine();
+							
 							while( in.ready() )
 							{
 								line = in.readLine();
-								
-								//If reached the end of subs list, stop
+
+								// If reached the end of subs list, stop
 								if( line.isEmpty() )
 								{
 									break;
 								}
-								
-								//Otherwise...
+
+								// Otherwise...
 								String sub = line;
-								
+
 								prevSubNames.add( sub );
 							}
-								
+
 							break;
 						}
-						
+
 						line = in.readLine();
 					}
-					
+
 					validInputFile = true;
-					
-					//Close file
+
+					// Close file
 					in.close();
-				}	
+				}
 				catch( IOException e )
 				{
 					e.printStackTrace();
 				}
 			}
-			/*
-			for( VidEntry v : prevFavData )
-			{
-				System.out.println( v.getChannel() + ":" + v.getTitle() );
-			}
-			System.out.println();
-			
-			for( VidEntry v : prevWLData )
-			{
-				System.out.println( v.getChannel() + ":" + v.getTitle() );
-			}
-			System.out.println();
-			
-			for( String s : prevSubNames )
-			{
-				System.out.println( s );
-			}
-			System.out.println();
-			
-			for( Map.Entry< String, ArrayList< VidEntry > > entry : prevPLData.entrySet() )
-			{
-				String plTitle = entry.getKey();
-				ArrayList< VidEntry > vidList = entry.getValue();
 
-				System.out.println( "[Playlist]" + plTitle );
-
-				for( VidEntry vE : vidList )
-				{
-					System.out.println( "[Channel:" + vE.getChannel() + "]" + vE.getTitle() );
-				}
-
-				System.out.println();
-			}*/
-						
 			// Get channel info
 			YouTube.Channels.List channelRequest = client.channels().list( "snippet" );
 			channelRequest.setMine( true );
@@ -326,110 +307,74 @@ public class YTPLTracker
 			ChannelListResponse channelResult = channelRequest.execute();
 
 			List< Channel > channelsList = channelResult.getItems();
-
-			// Print name of user channel
+			
+			//Store name of user's channel
 			String userChannel = channelsList.get( 0 ).getSnippet().getTitle();
-			
-			System.out.println();
-			System.out.println( "Connected to channel \""
-					+ userChannel + "\"." );
-			System.out.println();
 
-			//////////////////
-			
 			channelRequest = client.channels().list( "contentDetails" );
 			channelRequest.setMine( true );
 			channelResult = channelRequest.execute();
 
 			channelsList = channelResult.getItems();
-
+			
 			// Retrieve IDs of Favorites and Watch Later playlists
 			String favesID = channelsList.get( 0 ).getContentDetails().getRelatedPlaylists()
 					.getFavorites();
 			String wLaterID = channelsList.get( 0 ).getContentDetails().getRelatedPlaylists()
 					.getWatchLater();
-			// ///
-
+			
 			// Get playlist info
 			YouTube.Playlists.List playListRequest = client.playlists().list( "snippet" );
 			playListRequest.setMine( true );
 
-			playListRequest.setMaxResults( Long.valueOf( 20 ) );
+			playListRequest.setMaxResults( Long.valueOf( 50 )  );
+
+			PlaylistListResponse playlistResult;
 			
-			PlaylistListResponse playlistResult = playListRequest.execute();
-
-			List< Playlist > playlistsList = playlistResult.getItems();
-
-			// Print number of playlists found on channel
-			System.out.println( "Found " + playlistsList.size() + " playlists." );
-			System.out.println();
-
-			// Print playlist info
-			printPlaylist( favesID, "Favorites" );
-			printPlaylist( wLaterID, "Watch Later" );
-
-			for( Playlist pl : playlistsList )
+			ArrayList< Playlist > playlistsList = new ArrayList< Playlist >();
+			
 			{
-				printPlaylist( pl.getId(), pl.getSnippet().getTitle() );
+				String nextToken = "";
+	
+				// Scroll through result pages
+				do
+				{
+					playListRequest.setPageToken( nextToken );
+					playlistResult = playListRequest.execute();
+	
+					playlistsList.addAll( playlistResult.getItems() );
+	
+					nextToken = playlistResult.getNextPageToken();
+				}
+				while( nextToken != null );
 			}
-
-			// //Print title and elements of favourites
-			/*
-			 * System.out.println( "Favorites:" ); plItemsRequest.setPlaylistId(
-			 * favesID ); PlaylistItemListResponse plItemsResult =
-			 * plItemsRequest.execute(); List<PlaylistItem> plItemsList =
-			 * plItemsResult.getItems(); for( PlaylistItem plI : plItemsList ) {
-			 * System.out.println( plI.getSnippet().getTitle() ); }
-			 * System.out.println(); //// ////Print title and elements of Watch
-			 * Later System.out.println( "Watch Later:" );
-			 * plItemsRequest.setPlaylistId( wLaterID ); plItemsResult =
-			 * plItemsRequest.execute(); plItemsList = plItemsResult.getItems();
-			 * for( PlaylistItem plI : plItemsList ) { System.out.println(
-			 * plI.getSnippet().getTitle() ); } System.out.println(); ////
-			 * ////Print title and elements of each playlist for( Playlist pl :
-			 * playlistsList ) { System.out.println( pl.getSnippet().getTitle()
-			 * + ":" ); plItemsRequest.setPlaylistId( pl.getId() );
-			 * plItemsResult = plItemsRequest.execute(); plItemsList =
-			 * plItemsResult.getItems(); for( PlaylistItem plI : plItemsList ) {
-			 * System.out.println( plI.getSnippet().getTitle() ); }
-			 * System.out.println(); } ////
-			 */
-
-			// ///////////////////////////////////////
+			
 			// STORE PLAYLIST + SUB DATA IN CONTAINERS
-
 			YouTube.PlaylistItems.List plItemsRequest = client.playlistItems().list( "snippet" );
-			
-			plItemsRequest.setMaxResults( Long.valueOf( 20 ) );
-			
+
 			// Store Favourites Info
 			{
 				plItemsRequest.setPlaylistId( favesID );
-				plItemsRequest.setMaxResults( Long.valueOf( 20 ) );
-				
-				PlaylistItemListResponse plItemsResult;// = plItemsRequest.execute();
-								
-				ArrayList< PlaylistItem > plItemsList = new ArrayList< PlaylistItem >();//plItemsResult.getItems();
+				plItemsRequest.setMaxResults( Long.valueOf( 3 ) );
+
+				PlaylistItemListResponse plItemsResult;
+
+				ArrayList< PlaylistItem > plItemsList = new ArrayList< PlaylistItem >();
 
 				String nextToken = "";
-				
+
+				// Scroll through result pages
 				do
 				{
 					plItemsRequest.setPageToken( nextToken );
 					plItemsResult = plItemsRequest.execute();
-					
+
 					plItemsList.addAll( plItemsResult.getItems() );
-					
+
 					nextToken = plItemsResult.getNextPageToken();
-					
-					////HOW TO RETRIEVE RESULTS AFTER INITIAL 50!!!!
-					//plItemsRequest.setPageToken( plItemsResult.getNextPageToken() );
-					//plItemsResult = plItemsRequest.execute();
-					//plItemsList = plItemsResult.getItems();
-					///
 				}
 				while( nextToken != null );
-				
+
 				for( PlaylistItem plI : plItemsList )
 				{
 					// Get video title
@@ -440,8 +385,8 @@ public class YTPLTracker
 					YouTube.Videos.List vidRequest = client.videos().list( "snippet" );
 					vidRequest.setId( vId );
 
-					vidRequest.setMaxResults( Long.valueOf( 20 ) );
-					
+					vidRequest.setMaxResults( Long.valueOf( 3 ) );
+
 					VideoListResponse vidResult = vidRequest.execute();
 
 					List< Video > vidList = vidResult.getItems();
@@ -452,90 +397,31 @@ public class YTPLTracker
 					favData.add( new VidEntry( vTitle, vChannel ) );
 				}
 			}
-			// //////////////////////////////////////////////
+			
+			System.out.println( "Favourites Gathered..." );
 
-			// Store Watch Later Info
+			//Store Watch Later Info
 			{
 				plItemsRequest.setPlaylistId( wLaterID );
-				plItemsRequest.setMaxResults( Long.valueOf( 20 ) );
+				plItemsRequest.setMaxResults( Long.valueOf( 3 ) );
 
-				PlaylistItemListResponse plItemsResult;// = plItemsRequest.execute();
-				ArrayList< PlaylistItem > plItemsList = new ArrayList< PlaylistItem >();//plItemsResult.getItems();
-				
+				PlaylistItemListResponse plItemsResult;
+				ArrayList< PlaylistItem > plItemsList = new ArrayList< PlaylistItem >();
+
 				String nextToken = "";
-				
+
+				//Scroll through result pages
 				do
 				{
 					plItemsRequest.setPageToken( nextToken );
 					plItemsResult = plItemsRequest.execute();
-					
+
 					plItemsList.addAll( plItemsResult.getItems() );
-					
+
 					nextToken = plItemsResult.getNextPageToken();
-					
-					////HOW TO RETRIEVE RESULTS AFTER INITIAL 50!!!!
-					//plItemsRequest.setPageToken( plItemsResult.getNextPageToken() );
-					//plItemsResult = plItemsRequest.execute();
-					//plItemsList = plItemsResult.getItems();
-					///
 				}
 				while( nextToken != null );
-				
-				for( PlaylistItem plI : plItemsList )
-				{
-					//Get video title
-					String vTitle = plI.getSnippet().getTitle();
 
-					//Get video channel
-					String vId = plI.getSnippet().getResourceId().getVideoId();
-					YouTube.Videos.List vidRequest = client.videos().list( "snippet" );
-					vidRequest.setId( vId );
-					vidRequest.setMaxResults( Long.valueOf( 20 ) );
-
-					VideoListResponse vidResult = vidRequest.execute();
-
-					List< Video > vidList = vidResult.getItems();
-
-					String vChannel = vidList.get( 0 ).getSnippet().getChannelTitle();
-
-					//Store video data in playlist video list
-					wlData.add( new VidEntry( vTitle, vChannel ) );
-				}
-			}
-			// //////////////////////////////////////////////
-		
-			//YouTube.PlaylistItems.List plItemsRequest2 = client.playlistItems().list( "snippet" );
-			
-			// Store Playlists Info
-			for( Playlist pl : playlistsList )
-			{
-				plItemsRequest.setPlaylistId( pl.getId() );
-				plItemsRequest.setMaxResults( Long.valueOf( 20 ) );
-				PlaylistItemListResponse plItemsResult;// = plItemsRequest.execute();
-				ArrayList< PlaylistItem > plItemsList = new ArrayList< PlaylistItem >();//plItemsResult.getItems();
-
-				// Create ArrayList to store video data
-				ArrayList< VidEntry > plVids = new ArrayList< VidEntry >();
-				
-				String nextToken = "";
-				
-				do
-				{
-					plItemsRequest.setPageToken( nextToken );
-					plItemsResult = plItemsRequest.execute();
-					
-					plItemsList.addAll( plItemsResult.getItems() );
-					
-					nextToken = plItemsResult.getNextPageToken();
-					
-					////HOW TO RETRIEVE RESULTS AFTER INITIAL 50!!!!
-					//plItemsRequest.setPageToken( plItemsResult.getNextPageToken() );
-					//plItemsResult = plItemsRequest.execute();
-					//plItemsList = plItemsResult.getItems();
-					///
-				}
-				while( nextToken != null );
-				
 				for( PlaylistItem plI : plItemsList )
 				{
 					// Get video title
@@ -545,8 +431,59 @@ public class YTPLTracker
 					String vId = plI.getSnippet().getResourceId().getVideoId();
 					YouTube.Videos.List vidRequest = client.videos().list( "snippet" );
 					vidRequest.setId( vId );
-					vidRequest.setMaxResults( Long.valueOf( 20 ) );
-					
+					vidRequest.setMaxResults( Long.valueOf( 3 ) );
+
+					VideoListResponse vidResult = vidRequest.execute();
+
+					List< Video > vidList = vidResult.getItems();
+
+					String vChannel = vidList.get( 0 ).getSnippet().getChannelTitle();
+
+					// Store video data in playlist video list
+					wlData.add( new VidEntry( vTitle, vChannel ) );
+				}
+			}
+			
+			System.out.println( "Watch Later Gathered..." );
+
+			YouTube.PlaylistItems.List plItemsRequest2 = client.playlistItems().list( "snippet" );
+			
+			// Store Playlists Info
+			for( Playlist pl : playlistsList )
+			{
+				plItemsRequest2.setPlaylistId( pl.getId() );
+				plItemsRequest2.setMaxResults( Long.valueOf( 20 ) );
+				PlaylistItemListResponse plItemsResult;
+				ArrayList< PlaylistItem > plItemsList = new ArrayList< PlaylistItem >();
+
+				// Create ArrayList to store video data
+				ArrayList< VidEntry > plVids = new ArrayList< VidEntry >();
+
+				String nextToken = "";
+
+				//Scroll through result pages
+				do
+				{
+					plItemsRequest2.setPageToken( nextToken );
+					plItemsResult = plItemsRequest2.execute();
+
+					plItemsList.addAll( plItemsResult.getItems() );
+
+					nextToken = plItemsResult.getNextPageToken();
+				}
+				while( nextToken != null );
+
+				for( PlaylistItem plI : plItemsList )
+				{
+					// Get video title
+					String vTitle = plI.getSnippet().getTitle();
+
+					// Get video channel
+					String vId = plI.getSnippet().getResourceId().getVideoId();
+					YouTube.Videos.List vidRequest = client.videos().list( "snippet" );
+					vidRequest.setId( vId );
+					//vidRequest.setMaxResults( Long.valueOf( 3 ) );
+
 					VideoListResponse vidResult = vidRequest.execute();
 
 					List< Video > vidList = vidResult.getItems();
@@ -561,58 +498,56 @@ public class YTPLTracker
 				plData.put( pl.getSnippet().getTitle(), plVids );
 			}
 
+			System.out.println( "Playlists Gathered..." );
+			
 			// //Store Subscription info
 			YouTube.Subscriptions.List subRequest = client.subscriptions().list( "snippet" );
 			subRequest.setMine( true );
-			subRequest.setMaxResults( Long.valueOf( 20 ) );
-			
+			subRequest.setMaxResults( Long.valueOf( 3 ) );
+
 			SubscriptionListResponse subResult;// = subRequest.execute();
 
-			ArrayList< Subscription > subList = new ArrayList< Subscription >();//subResult.getItems();
+			ArrayList< Subscription > subList = new ArrayList< Subscription >();// subResult.getItems();
 
 			String nextToken = "";
-			
+
+			//Scroll through result pages
 			do
 			{
 				subRequest.setPageToken( nextToken );
 				subResult = subRequest.execute();
-				
+
 				subList.addAll( subResult.getItems() );
-				
+
 				nextToken = subResult.getNextPageToken();
-				
-				////HOW TO RETRIEVE RESULTS AFTER INITIAL 50!!!!
-				//plItemsRequest.setPageToken( plItemsResult.getNextPageToken() );
-				//plItemsResult = plItemsRequest.execute();
-				//plItemsList = plItemsResult.getItems();
-				///
 			}
 			while( nextToken != null );
-			
-			System.out.println( "Found " + subList.size()
-					+ ( subList.size() == 1 ? " subscription" : " subscriptions" ) + ":" );
+
 			for( Subscription s : subList )
 			{
 				String subTitle = s.getSnippet().getTitle();
-				System.out.println( subTitle );
 
 				subNames.add( subTitle );
 			}
-			///////////
-					
+			
+			System.out.println( "Subscriptions Gathered..." );
+
+			System.out.println();
+			System.out.println( "Saving Data..." );
+			
 			// Save retrieved data in text file
 			Date date = new Date();
 			SimpleDateFormat sDF = new SimpleDateFormat( "ddMMyyHHmmss" );
+			
+			String outputFileName = "YTPT" + sDF.format( date ) + ".txt";
 
-			PrintWriter out = new PrintWriter(
-					new FileWriter( "YTPT" + sDF.format( date ) + ".txt" ) );
+			PrintWriter out = new PrintWriter( new FileWriter( outputFileName ) );
 
-			//Channel data
-			out.println( "Data collected from channel "
-					+ userChannel + ":" );
+			// Channel data
+			out.println( "Data collected from channel " + userChannel + ":" );
 			out.println( "=====" );
 			out.println();
-			
+
 			// Favorites
 			out.println( "[Favorites]" );
 			out.println( "(" + favData.size() + ")" );
@@ -650,13 +585,14 @@ public class YTPLTracker
 
 			// Subscriptions
 			out.println( "[Subscriptions]" );
-			out.println( "(" + subNames.size() + ")" ); 
+			out.println( "(" + subNames.size() + ")" );
 			for( String s : subNames )
 			{
 				out.println( s );
 			}
-			
-			//Output txt file report on differences between program runs, if old run passed in
+
+			// Output txt file report on differences between program runs, if
+			// old run passed in
 			if( validInputFile )
 			{
 				out.println( "" );
@@ -664,10 +600,10 @@ public class YTPLTracker
 				out.println( "Differences detected from previous run " + args[0] + ":" );
 				out.println( "=====" );
 				out.println();
-				
-				//Faves
+
+				// Faves
 				out.println( "[Favorites]" );
-				ArrayList< VidEntry > removedFavs  = new ArrayList< VidEntry > ( prevFavData );
+				ArrayList< VidEntry > removedFavs = new ArrayList< VidEntry >( prevFavData );
 				removedFavs.removeAll( favData );
 				out.println( "Removed" + "(" + removedFavs.size() + "): " );
 				for( VidEntry vE : removedFavs )
@@ -675,8 +611,8 @@ public class YTPLTracker
 					out.println( "[Channel:" + vE.getChannel() + "]" + vE.getTitle() );
 				}
 				out.println();
-	
-				ArrayList< VidEntry > newFavs  = new ArrayList< VidEntry > ( favData );
+
+				ArrayList< VidEntry > newFavs = new ArrayList< VidEntry >( favData );
 				newFavs.removeAll( prevFavData );
 				out.println( "New" + "(" + newFavs.size() + "): " );
 				for( VidEntry vE : newFavs )
@@ -686,11 +622,11 @@ public class YTPLTracker
 				out.println();
 				out.println( "---" );
 				out.println();
-				
-				//Watch Later
+
+				// Watch Later
 				out.println( "[Watch Later]" );
-				
-				ArrayList< VidEntry > removedWL  = new ArrayList< VidEntry > ( prevWLData );
+
+				ArrayList< VidEntry > removedWL = new ArrayList< VidEntry >( prevWLData );
 				removedWL.removeAll( wlData );
 				out.println( "Removed" + "(" + removedWL.size() + "): " );
 				for( VidEntry vE : removedWL )
@@ -698,174 +634,68 @@ public class YTPLTracker
 					out.println( "[Channel:" + vE.getChannel() + "]" + vE.getTitle() );
 				}
 				out.println();
-				
-				ArrayList< VidEntry > newWL  = new ArrayList< VidEntry > ( wlData );
+
+				ArrayList< VidEntry > newWL = new ArrayList< VidEntry >( wlData );
 				newWL.removeAll( prevWLData );
 				out.println( "New" + "(" + newWL.size() + "): " );
 				for( VidEntry vE : newWL )
 				{
 					out.println( "[Channel:" + vE.getChannel() + "]" + vE.getTitle() );
 				}
-				
+
 				out.println();
 				out.println( "---" );
 				out.println();
 
-				//All Playlist Items
-				
-					//Print differences between playlist items
-					//NOTE: Only prints differences for playlists existing during both program runs, removed and new playlist
-					//titles are listed separately later on, the contents of the removed ones can be viewed in the previous run
-					//.txt output passed into the program in order to reach this point in the first place.
-	
-					//Print new and removed videos from all playlists
-					
-					//Limit to playlists existing during both runs
-					HashMap< String, ArrayList< VidEntry > > plVids = new HashMap< String, ArrayList< VidEntry > >( plData );
-					plVids.keySet().retainAll( prevPLData.keySet() );
-					
-					for( Map.Entry< String, ArrayList< VidEntry > > entry : plVids.entrySet() )
-					{
-						String plTitle = entry.getKey();
-						ArrayList< VidEntry > vidList = new ArrayList< VidEntry >( entry.getValue() );
-												
-						vidList.removeAll( plData.get( plTitle ) );
-	
-						out.println( "[Playlist]" + plTitle );
-	
-						out.println( "Removed" + "(" + vidList.size() + "): " );
-						for( VidEntry vE : vidList )
-						{
-							out.println( "[Channel:" + vE.getChannel() + "]" + vE.getTitle() );
-						}
-						
-						out.println();
-						
-						vidList = new ArrayList< VidEntry >( entry.getValue() );
-						vidList.removeAll( prevPLData.get( plTitle ) );
-						
-						out.println( "New" + "(" + vidList.size() + "): " );
-						for( VidEntry vE : vidList )
-						{
-							out.println( "[Channel:" + vE.getChannel() + "]" + vE.getTitle() );
-						}
-						out.println();
-						out.println( "---" );
-						out.println();
-					}
-					
-					/*
-						//Print removed videos from all playlists
-						//Copy playlist data references to new hashmap
-						HashMap< String, ArrayList< VidEntry > > removedPLVids = new HashMap< String, ArrayList< VidEntry > >( prevPLData );
-						
-						//Limit to playlists existing at times of both runs
-						removedPLVids.keySet().retainAll( plData.keySet() );
-						
-						for( Map.Entry< String, ArrayList< VidEntry > > entry : removedPLVids.entrySet() )
-						{
-							String plTitle = entry.getKey();
-							ArrayList< VidEntry > vidList = new ArrayList< VidEntry >( entry.getValue() );
-													
-							vidList.removeAll( plData.get( plTitle ) );
-		
-							out.println( "[Playlist]" + plTitle );
-		
-							out.println( "Removed" + "(" + vidList.size() + "): " );
-							for( VidEntry vE : vidList )
-							{
-								out.println( "[Channel:" + vE.getChannel() + "]" + vE.getTitle() );
-							}
-		
-							out.println();
-						}
-						
-						//Print new videos in all playlists
-						//Copy playlist data references to new hashmap
-						HashMap< String, ArrayList< VidEntry > > newPLVids = new HashMap< String, ArrayList< VidEntry > >( plData );
-					
-						//Limit to playlists existing at times of both runs
-						newPLVids.keySet().retainAll( prevPLData.keySet() );
-																		
-						for( Map.Entry< String, ArrayList< VidEntry > > entry : newPLVids.entrySet() )
-						{
-							String plTitle = entry.getKey();
-							ArrayList< VidEntry > vidList = new ArrayList< VidEntry >( entry.getValue() );
-															
-							vidList.removeAll( prevPLData.get( plTitle ) );
-		
-							out.println( "[Playlist]" + plTitle );
-		
-							out.println( "New" + "(" + vidList.size() + "): " );
-							for( VidEntry vE : vidList )
-							{
-								out.println( "[Channel:" + vE.getChannel() + "]" + vE.getTitle() );
-							}
-		
-							out.println();
-						}
-					*/
-				
-					/*HashMap< String, ArrayList< VidEntry > > removedPLVids = new HashMap< String, ArrayList< VidEntry > >( prevPLData );
-				
-					for( Map.Entry< String, ArrayList< VidEntry > > entry : removedPLVids.entrySet() )
-					{
-						String plTitle = entry.getKey();
-						ArrayList< VidEntry > vidList = entry.getValue();
-												
-						vidList.removeAll( plData.get( plTitle ) );
+				// All Playlist Items
 
-						out.println( "[Playlist]" + plTitle );
+				// Print differences between playlist items
+				// NOTE: Only prints differences for playlists existing during
+				// both program runs, removed and new playlist
+				// titles are listed separately later on, the contents of the
+				// removed ones can be viewed in the previous run
+				// .txt output passed into the program in order to reach this
+				// point in the first place.
 
-						out.println( "Removed" + "(" + vidList.size() + "): " );
-						for( VidEntry vE : vidList )
-						{
-							out.println( "[Channel:" + vE.getChannel() + "]" + vE.getTitle() );
-						}
+				// Print new and removed videos from all playlists
+				// Limit to playlists existing during both runs
+				HashMap< String, ArrayList< VidEntry > > plVids = new HashMap< String, ArrayList< VidEntry > >(
+						plData );
+				plVids.keySet().retainAll( prevPLData.keySet() );
 
-						out.println();
-					}
-					
-					//Print new videos in all playlists
-					//Copy playlist data references to new hashmap
-					HashMap< String, ArrayList< VidEntry > > newPLVids = new HashMap< String, ArrayList< VidEntry > >( plData );
-				
-					for( Map.Entry< String, ArrayList< VidEntry > > entry : newPLVids.entrySet() )
-					{
-						String plTitle = entry.getKey();
-						ArrayList< VidEntry > vidList = entry.getValue();
-												
-						vidList.removeAll( prevPLData.get( plTitle ) );
-
-						out.println( "[Playlist]" + plTitle );
-
-						out.println( "New" + "(" + vidList.size() + "): " );
-						for( VidEntry vE : vidList )
-						{
-							out.println( "[Channel:" + vE.getChannel() + "]" + vE.getTitle() );
-						}
-
-						out.println();
-					}*/
-				
-				/*for( Map.Entry< String, ArrayList< VidEntry > > entry : prevPLData.entrySet() )
+				for( Map.Entry< String, ArrayList< VidEntry > > entry : plVids.entrySet() )
 				{
 					String plTitle = entry.getKey();
-					ArrayList< VidEntry > vidList = entry.getValue();
+					ArrayList< VidEntry > vidList = new ArrayList< VidEntry >( entry.getValue() );
 
-					System.out.println( "[Playlist]" + plTitle );
+					vidList.removeAll( plData.get( plTitle ) );
 
+					out.println( "[Playlist]" + plTitle );
+
+					out.println( "Removed" + "(" + vidList.size() + "): " );
 					for( VidEntry vE : vidList )
 					{
-						System.out.println( "[Channel:" + vE.getChannel() + "]" + vE.getTitle() );
+						out.println( "[Channel:" + vE.getChannel() + "]" + vE.getTitle() );
 					}
 
-					System.out.println();
-				}*/
-				
-				//Subs
+					out.println();
+
+					vidList = new ArrayList< VidEntry >( entry.getValue() );
+					vidList.removeAll( prevPLData.get( plTitle ) );
+
+					out.println( "New" + "(" + vidList.size() + "): " );
+					for( VidEntry vE : vidList )
+					{
+						out.println( "[Channel:" + vE.getChannel() + "]" + vE.getTitle() );
+					}
+					out.println();
+					out.println( "---" );
+					out.println();
+				}
+
+				// Subs
 				out.println( "[Subscriptions]" );
-				ArrayList< String > removedSubs  = new ArrayList< String > ( prevSubNames );
+				ArrayList< String > removedSubs = new ArrayList< String >( prevSubNames );
 				removedSubs.removeAll( subNames );
 				out.println( "Removed" + "(" + removedSubs.size() + "): " );
 				for( String s : removedSubs )
@@ -873,8 +703,8 @@ public class YTPLTracker
 					out.println( s );
 				}
 				out.println();
-				
-				ArrayList< String > newSubs  = new ArrayList< String > ( subNames );
+
+				ArrayList< String > newSubs = new ArrayList< String >( subNames );
 				newSubs.removeAll( prevSubNames );
 				out.println( "New" + "(" + newSubs.size() + "): " );
 				for( String s : newSubs )
@@ -884,11 +714,11 @@ public class YTPLTracker
 				out.println();
 				out.println( "---" );
 				out.println();
-				
-				//Playlists
+
+				// Playlists
 				out.println( "[Playlists]" );
-							
-				HashSet< String > removedPLs  = new HashSet< String >( prevPLData.keySet() );
+
+				HashSet< String > removedPLs = new HashSet< String >( prevPLData.keySet() );
 				removedPLs.removeAll( plData.keySet() );
 
 				out.println( "Removed" + "(" + removedPLs.size() + "): " );
@@ -897,8 +727,8 @@ public class YTPLTracker
 					out.println( s );
 				}
 				out.println();
-				
-				HashSet< String > newPLs  = new HashSet< String >( plData.keySet() );
+
+				HashSet< String > newPLs = new HashSet< String >( plData.keySet() );
 				newPLs.removeAll( prevPLData.keySet() );
 
 				out.println( "New" + "(" + newPLs.size() + "): " );
@@ -907,9 +737,16 @@ public class YTPLTracker
 					out.println( s );
 				}
 			}
-			
+
 			// Close file
 			out.close();
+			
+			System.out.println( "Data Saved." );
+			System.out.println();
+			
+			//Print completion message
+			System.out.println( "Program run complete." );
+			System.out.println( "Output stored in file: \"" + outputFileName + "\"" );
 		}
 		catch( IOException e )
 		{
@@ -929,8 +766,8 @@ public class YTPLTracker
 
 			YouTube.PlaylistItems.List plItemsRequest = client.playlistItems().list( "snippet" );
 
-			plItemsRequest.setMaxResults( Long.valueOf( 20 ) );
-			
+			plItemsRequest.setMaxResults( Long.valueOf( 3 ) );
+
 			plItemsRequest.setPlaylistId( plID );
 			PlaylistItemListResponse plItemsResult = plItemsRequest.execute();
 
@@ -946,7 +783,7 @@ public class YTPLTracker
 				// Print video uploader
 				YouTube.Videos.List vidRequest = client.videos().list( "snippet" );
 				vidRequest.setId( vId );
-				vidRequest.setMaxResults( Long.valueOf( 20 ) );
+				vidRequest.setMaxResults( Long.valueOf( 3 ) );
 
 				VideoListResponse vidResult = vidRequest.execute();
 
@@ -984,21 +821,22 @@ class VidEntry
 	{
 		return channel;
 	}
-	
+
 	public boolean equals( Object o )
 	{
 		if( o == null )
 			return false;
 		if( o == this )
 			return true;
-		if( !(o instanceof VidEntry ) )
+		if( !( o instanceof VidEntry ) )
 			return false;
-		
-		VidEntry rhs = (VidEntry) o;
-		
-		return new EqualsBuilder().append( title, rhs.title ).append( channel, rhs.channel ).isEquals();
+
+		VidEntry rhs = ( VidEntry ) o;
+
+		return new EqualsBuilder().append( title, rhs.title ).append( channel, rhs.channel )
+				.isEquals();
 	}
-	
+
 	public int hashCode()
 	{
 		return new HashCodeBuilder( 97, 13 ).append( title ).append( channel ).toHashCode();
