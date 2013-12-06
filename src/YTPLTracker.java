@@ -379,7 +379,7 @@ public class YTPLTracker
 				{
 					// Get video title
 					String vTitle = plI.getSnippet().getTitle();
-
+					
 					// Get video channel
 					String vId = plI.getSnippet().getResourceId().getVideoId();
 					YouTube.Videos.List vidRequest = client.videos().list( "snippet" );
