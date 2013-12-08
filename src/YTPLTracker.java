@@ -16,19 +16,11 @@ import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.YouTubeScopes;
 import com.google.api.services.youtube.model.*;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -124,14 +116,12 @@ public class YTPLTracker
 			client = new YouTube.Builder( httpTransport, JSON_FACTORY, credential )
 					.setApplicationName( APPLICATION_NAME ).build();
 
-			// ////////////////////////////////////////////////////////////////////
-
+			// Declare model and view objects
 			YTPLModel model = new YTPLModel();
 			YTPLView view = new YTPLView( model );
 
 			// If user specifies a txt file from an older run of the program as
 			// a console argument...
-
 			boolean validInputFile = false;
 			if( args.length > 0 )
 			{
@@ -320,7 +310,6 @@ public class YTPLTracker
 					String vId = plI.getSnippet().getResourceId().getVideoId();
 					YouTube.Videos.List vidRequest = client.videos().list( "snippet" );
 					vidRequest.setId( vId );
-					// vidRequest.setMaxResults( Long.valueOf( 3 ) );
 
 					VideoListResponse vidResult = vidRequest.execute();
 
@@ -338,14 +327,14 @@ public class YTPLTracker
 
 			System.out.println( "Playlists Gathered..." );
 
-			// //Store Subscription info
+			//Store Subscription info
 			YouTube.Subscriptions.List subRequest = client.subscriptions().list( "snippet" );
 			subRequest.setMine( true );
 			subRequest.setMaxResults( Long.valueOf( 3 ) );
 
-			SubscriptionListResponse subResult;// = subRequest.execute();
+			SubscriptionListResponse subResult;
 
-			ArrayList< Subscription > subList = new ArrayList< Subscription >();// subResult.getItems();
+			ArrayList< Subscription > subList = new ArrayList< Subscription >();
 
 			String nextToken = "";
 
